@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>{{ category.name }}</h1>
+    {% for program in programs %}
+        <li>{{ program.title }}</li>
+        <a href="{{ path('program_show', {id : program.id}) }}">details</a>
+    {% else %}
+        Aucune série trouvée
+    {% endfor %}
+{% endblock %}
