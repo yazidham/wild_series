@@ -13,7 +13,7 @@ class SeasonFixtures extends Fixture  implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
-        for($i = 0; $i < 30; $i++) {
+        for($i = 0; $i <= 30; $i++) {
             $season = new Season();
             $season->setNumber($faker->numberBetween(1, 10));
             $season->setYear($faker->year());

@@ -7,6 +7,6 @@
     </p>
     <h4>autres episodes</h4>
     {% for episode in episodes %}
-        {{ episode.title }}
+        <a href="{{ path('program_episode_show', {programId : program.id, seasonId : season.id, episodeId : episode.id}) }}">episode {{ episode.number}} : {{ episode.title }}</a><br>
     {% endfor %}
 {% endblock %}
