@@ -26,6 +26,7 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
             $program->setCategory($this->getReference('category_' . $i));
             $slug = $this->slugger->slug($program->getTitle());
             $program->setSlug($slug);
+            $program->setOwner($this->getReference('admin'));
             $this->addReference('program_' . $i, $program);
             $manager->persist($program);
         }
@@ -33,10 +34,11 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
 
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             CategoryFixtures::class,
+            UserFixtures::class,
         ];
     }
 }

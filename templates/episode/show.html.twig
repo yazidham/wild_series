@@ -25,7 +25,7 @@
         </tr>
         </tbody>
     </table>
-
+    {{ include('episode/_delete_form.html.twig') }}
     <a href="{{ path('app_episode_index') }}">back to list</a>
 
     {% if app.user %}
@@ -34,7 +34,9 @@
     {% endif %}
     Comments :
     {% for comment in comments %}
-        {{ comment.comment }} note : {{ comment.rate }}
+        <li>by {{ comment.user.email }} <br>{{ comment.comment }} <br>note : {{ comment.rate }}</li> <br>
+        {% if comment.user == app.user or is_granted('ROLE_ADMIN')  %}
+            <a href="{{ path('delete_comment', {id : comment.id}) }}">delete this comment</a><br>
+        {% endif %}
     {% endfor %}
-    {{ include('episode/_delete_form.html.twig') }}
 {% endblock %}

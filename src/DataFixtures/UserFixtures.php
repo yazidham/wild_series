@@ -23,17 +23,19 @@ class UserFixtures extends Fixture
         $faker = Factory::create();
 
         $contributor = new User();
-        $contributor->setEmail($faker->email());
+        $contributor->setEmail('test@me.fr');
 //        $contributor->setPassword($this->passwordHasher->hashPassword($contributor, $faker->password(6, 10)));
-        $contributor->setPassword($this->passwordHasher->hashPassword($contributor, 'contributor'));
+        $contributor->setPassword($this->passwordHasher->hashPassword($contributor, 'test'));
         $contributor->setRoles(['ROLE_CONTRIBUTOR']);
+        $this->addReference('contributor', $contributor);
         $manager->persist($contributor);
 
         $admin = new User();
-        $admin->setEmail($faker->email());
+        $admin->setEmail('admin@me.fr');
 //        $admin->setPassword($this->passwordHasher->hashPassword($contributor, $faker->password(6, 10)));
-        $admin->setPassword($this->passwordHasher->hashPassword($contributor, 'admin'));
+        $admin->setPassword($this->passwordHasher->hashPassword($contributor, 'test'));
         $admin->setRoles(['ROLE_ADMIN']);
+        $this->addReference('admin', $admin);
         $manager->persist($admin);
 
         $manager->flush();

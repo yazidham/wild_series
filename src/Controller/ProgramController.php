@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/program', name: 'program_')]
@@ -40,6 +41,7 @@ class ProgramController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $slug = $slugger->slug($program->getTitle());
             $program->setSlug($slug);
+            $program->setOwner($this->getUser());
             $programRepository->save($program, true);
             $email = (new Email())
 //                ->from($this->getParameter('mailer_from')
@@ -65,6 +67,32 @@ class ProgramController extends AbstractController
             'program' => $program,
             'seasons' => $seasons,
             'duration' => $duration,
+        ]);
+    }
+
+    #[Route('/{slug}/edit', name: 'edit', methods: ['GET', 'POST'])]
+    public function edit(Program $program, Request $request, SluggerInterface $slugger, ProgramRepository $programRepository): Response
+    {
+        if ($this->getUser() !== $program->getOwner()) {
+            // If not the owner, throws a 403 Access Denied exception
+            throw $this->createAccessDeniedException('Only the owner can edit the program!');
+        }
+        $form = $this->createForm(ProgramType::class, $program);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $slug = $slugger->slug($program->getTitle());
+            $program->setSlug($slug);
+            $program->setOwner($this->getUser());
+            $programRepository->save($program, true);
+            $this->addFlash('success', 'the program has benn updated');
+
+            return $this->redirectToRoute('program_index');
+        }
+
+        return $this->renderForm('program/edit.html.twig', [
+            'form' => $form,
+            'program' => $program,
         ]);
     }
 

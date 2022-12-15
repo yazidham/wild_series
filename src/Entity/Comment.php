@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\CommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -14,9 +16,11 @@ class Comment
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\NotBlank]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
 
+    #[Assert\NotBlank]
     #[ORM\Column(nullable: true)]
     private ?int $rate = null;
 
