@@ -26,6 +26,8 @@ class CategoryController extends AbstractController
         // Was the form submitted ?
         if ($form->isSubmitted() && $form->isValid()) {
             $categoryRepository->save($category, true);
+            $this->addFlash('success', 'The new category has been created');
+            return $this->redirectToRoute('category_index');
         }
         // Render the form (best practice)
         return $this->renderForm('category/new.html.twig', [
@@ -50,7 +52,7 @@ class CategoryController extends AbstractController
             throw $this->createNotFoundException('The category does not exist');
         }
         $programs = $programRepository->findBy(['category' => $category], ['id'=>'DESC'], 3);
-        return $this->render('category/show.html.twig', [
+        return $this->render('category/show.html.twig.html.twig', [
             'category' => $category,
             'programs' => $programs
         ]);

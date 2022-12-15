@@ -5,10 +5,19 @@
         <img class="align-self-start mr-3" src="{{program.poster}}" alt="{{ program.title }} poster">
         <div class="media-body">
             <h1 class="mt-0">{{ program.title }}</h1>
-            <p>{{ program.synopsis }}</p>
+            <p>{{ program.synopsis }}</p><br>
             <p>Catégorie : {{ program.category.name }}</p>
+            acteurs :<br>
+            {% for actor in program.actors %}
+                {{ actor.name }}<br>
+            {% endfor %}
+                durée totale du programme :
+            {% if duration.0 > 0 %}
+                {{ duration.0 }} days
+            {% endif %}
+            {{ duration.1 }} hours {{ duration.2 }} minutes<br>
             {% for season in seasons %}
-                <a href="{{ path('program_season_show', {programId : program.id, seasonId : season.id}) }}">season {{ season.number }}</a>
+                <a href="{{ path('program_season_show', {programSlug : program.slug, seasonId : season.id}) }}">season {{ season.number }}</a>
             {% endfor %}
         </div>
     </div>

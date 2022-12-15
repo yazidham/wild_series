@@ -3,24 +3,32 @@
 namespace App\Entity;
 
 use App\Repository\ProgramRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: ProgramRepository::class)]
 #[UniqueEntity(
     'title',
     message: 'ce titre existe déjà',
 )]
+#[Vich\Uploadable]
 class Program
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?DatetimeInterface $updatedAt = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
@@ -30,7 +38,7 @@ class Program
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
     #[Assert\Regex(
-        pattern: 'plus belle la vie',
+        pattern: '/plus belle la vie/i',
         message: 'on parle de vrai truc',
         match: false
     )]
@@ -39,20 +47,40 @@ class Program
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $poster = null;
 
+    #[Vich\UploadableField(mapping: 'poster_file', fileNameProperty: 'poster')]
+    private ?File $posterFile = null;
+
     #[ORM\ManyToOne(inversedBy: 'programs')]
     private ?Category $category = null;
 
     #[ORM\OneToMany(mappedBy: 'program', targetEntity: Season::class)]
     private Collection $seasons;
 
+    #[ORM\ManyToMany(targetEntity: Actor::class, mappedBy: 'programs')]
+    private Collection $actors;
+
+    #[ORM\Column(length: 255)]
+    private ?string $slug = null;
+
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
+        $this->actors = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getUpdatedAt(): ?DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getTitle(): ?string
@@ -87,6 +115,21 @@ class Program
     public function setPoster(?string $poster): self
     {
         $this->poster = $poster;
+
+        return $this;
+    }
+
+    public function getPosterFile(): ?File
+    {
+        return $this->posterFile;
+    }
+
+    public function setPosterFile(File $image = null): Program
+    {
+        $this->posterFile = $image;
+        if ($image) {
+            $this->updatedAt = new DateTime('now');
+        }
 
         return $this;
     }
@@ -129,6 +172,45 @@ class Program
                 $season->setProgram(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Actor>
+     */
+    public function getActors(): Collection
+    {
+        return $this->actors;
+    }
+
+    public function addActor(Actor $actor): self
+    {
+        if (!$this->actors->contains($actor)) {
+            $this->actors->add($actor);
+            $actor->addProgram($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActor(Actor $actor): self
+    {
+        if ($this->actors->removeElement($actor)) {
+            $actor->removeProgram($this);
+        }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }
